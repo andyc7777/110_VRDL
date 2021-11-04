@@ -10,6 +10,11 @@ Original file is located at
 
 ##### To use ensemble methon, install torchensemble.
 """
+
+
+# model and Inference.py download link:
+'https://drive.google.com/drive/folders/1hNcn6LQO6Y-qYI_UF2ROibPQolEqyh4x?usp=sharing'
+
 import os
 import cv2
 import numpy as np

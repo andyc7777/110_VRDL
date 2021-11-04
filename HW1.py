@@ -10,14 +10,6 @@ Original file is located at
 
 ##### To use ensemble methon, install torchensemble.
 """
-
-!pip install torchensemble
-
-"""# Import Packages
-
-##### Importing needed packages.
-"""
-
 import os
 import cv2
 import numpy as np
@@ -32,7 +24,7 @@ import torch.nn as nn
 from torchvision import transforms, utils
 from torchvision.transforms import transforms
 from torch.utils.data import Dataset, ConcatDataset, DataLoader, Subset
-import pathlib 
+import pathlib
 from torchvision.datasets import DatasetFolder
 from tqdm.auto import tqdm
 from torch.utils.data import random_split
@@ -42,6 +34,14 @@ import torchvision.models as models
 from torchensemble import VotingClassifier
 from torchensemble.utils.logging import set_logger
 from torchensemble.utils.io import load
+
+!pip install torchensemble
+
+"""# Import Packages
+
+##### Importing needed packages.
+"""
+
 
 """# Download Dataset and Unzip"""
 
@@ -61,7 +61,7 @@ os.chdir("/content/2021VRDL_HW1_datasets/")
 """# Data pre-processing"""
 
 # 提取class列跟對應的label
-classes = pd.read_csv('classes.txt', sep=" ",header=None)
+classes = pd.read_csv('classes.txt', sep=" ", header=None)
 classes.columns = ['class']
 
 classes_num = []  # 把class的編號跟名稱存成dict，以便查詢
@@ -79,24 +79,25 @@ class_dict = dict(zip(classes_num, classes_name))
 
 """
 
+
 def default_loader(path):
     return Image.open(path).convert('RGB')
 
-transform_set = [ 
+transform_set = [
     transforms.RandomHorizontalFlip(p=1),
     transforms.RandomVerticalFlip(p=1),
     transforms.RandomRotation(30, resample=Image.BICUBIC, expand=False, center=(55, 5)),
     transforms.ColorJitter(brightness=(0, 5), contrast=(0, 5), saturation=(0, 5), hue=(-0.1, 0.1)),
-    #transforms.CenterCrop(200),
+    # transforms.CenterCrop(200),
     transforms.RandomCrop(200),
     transforms.RandomResizedCrop((200, 200)),
-    #transforms.TenCrop(200, vertical_flip=False),
-    #transforms.GaussianBlur(7,3),
-    #transforms.RandomAffine(degrees=(-30,30), translate=(0, 0.5), scale=(0.4, 0.5), shear=(0,0), fillcolor=(0,255,255)),
-    #transforms.Grayscale(num_output_channels=3),
-    #transforms.RandomGrayscale(p=0.9),
-    #transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=2),
-    
+    # transforms.TenCrop(200, vertical_flip=False),
+    # transforms.GaussianBlur(7,3),
+    # transforms.RandomAffine(degrees=(-30,30), translate=(0, 0.5), scale=(0.4, 0.5), shear=(0,0), fillcolor=(0,255,255)),
+    # transforms.Grayscale(num_output_channels=3),
+    # transforms.RandomGrayscale(p=0.9),
+    # transforms.RandomPerspective(distortion_scale=0.5, p=0.5, interpolation=2),
+
 ]
 
 transform_train = transforms.Compose([
@@ -124,7 +125,8 @@ transform_aug_3 = transforms.Compose([
     transforms.RandomRotation(30, resample=Image.BICUBIC, expand=False, center=(55, 5)),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    transforms.Normalize(mean=(0.485, 0.456, 0.406),
+                         std=(0.229, 0.224, 0.225)),
 ])
 transform_aug_4 = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -163,8 +165,8 @@ class training_set(Dataset):
             line = line.strip('\n')
             line = line.rstrip()
             words = line.split()
-            imgs.append((words[0],int(str(words[1])[0:3])))
-            
+            imgs.append((words[0], int(str(words[1])[0:3])))
+
         self.imgs = imgs
         self.transform = transform
         self.target_transform = target_transform
@@ -176,11 +178,12 @@ class training_set(Dataset):
         img = self.loader(fn)
         if self.transform is not None:
             img = self.transform(img)
-        return img,label
+        return img, label
 
     def __len__(self):
         return len(self.imgs)
-    
+
+
 class testing_set(Dataset):
     def __init__(self, txt, transform=None, target_transform=None, loader=default_loader):
         fh = open(txt, 'r')
@@ -190,7 +193,7 @@ class testing_set(Dataset):
             line = line.rstrip()
             words = line.split()
             test_images.append((words))
-    
+
         self.test_images = test_images
         self.transform = transform
         self.loader = loader
@@ -206,14 +209,14 @@ class testing_set(Dataset):
     def __len__(self):
         return len(self.test_images)
 
-train_data = training_set(txt = 'training_labels.txt', transform = transform_train)
-aug_train_data_1 = training_set(txt = 'training_labels.txt', transform = transform_aug_1)
-aug_train_data_2 = training_set(txt = 'training_labels.txt', transform = transform_aug_2)
-aug_train_data_3 = training_set(txt = 'training_labels.txt', transform = transform_aug_3)
-aug_train_data_4 = training_set(txt = 'training_labels.txt', transform = transform_aug_4)
-aug_train_data_5 = training_set(txt = 'training_labels.txt', transform = transform_aug_5)
-aug_train_data_6 = training_set(txt = 'training_labels.txt', transform = transform_aug_6)
-test_data = testing_set(txt = 'testing_img_order.txt', transform = transform_test)
+train_data = training_set(txt='training_labels.txt', transform=transform_train)
+aug_train_data_1 = training_set(txt='training_labels.txt', transform=transform_aug_1)
+aug_train_data_2 = training_set(txt='training_labels.txt', transform=transform_aug_2)
+aug_train_data_3 = training_set(txt='training_labels.txt', transform=transform_aug_3)
+aug_train_data_4 = training_set(txt='training_labels.txt', transform=transform_aug_4)
+aug_train_data_5 = training_set(txt='training_labels.txt', transform=transform_aug_5)
+aug_train_data_6 = training_set(txt='training_labels.txt', transform=transform_aug_6)
+test_data = testing_set(txt='testing_img_order.txt', transform=transform_test)
 
 train_data = ConcatDataset([train_data, aug_train_data_1, aug_train_data_2, aug_train_data_3, aug_train_data_4, aug_train_data_5, aug_train_data_6])
 
@@ -223,15 +226,15 @@ train_dataset, val_dataset = random_split(
     generator=torch.Generator().manual_seed(42)
 )
 
-training_data_loader = DataLoader(train_dataset, batch_size = 50,shuffle = True)
-val_data_loader = DataLoader(val_dataset, batch_size = 50,shuffle = True)
+training_data_loader = DataLoader(train_dataset, batch_size=50, shuffle=True)
+val_data_loader = DataLoader(val_dataset, batch_size=50, huffle=True)
 testing_data_loader = DataLoader(test_data, batch_size=50, shuffle=False)
 
 print(len(training_data_loader))
 print(len(val_data_loader))
 print(len(testing_data_loader))
 
-#%%
+
 # 看一下batch裡面的圖片
 '''def show_batch(imgs):
     grid = utils.make_grid(imgs)
@@ -259,27 +262,27 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # 凍結參數
 for param in resnext50.parameters():
     param.requires_grad = False
-#print(resnext50)
+# print(resnext50)
 # 修改ＦＣ層的輸出
 num_ftrs = resnext50.fc.in_features
 resnext50.fc = nn.Sequential(
               nn.Linear(num_ftrs, 201)
               )
 
-        
-resnext50=resnext50.to(device)
+
+resnext50 = resnext50.to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnext50.fc.parameters(), lr=0.001)
 
-n_epochs = 5 # 容易overfitting, epoch少一點
+n_epochs = 5  # 容易overfitting, epoch少一點
 valid_loss_min = np.Inf
 
 for epoch in range(n_epochs):
     # ---------- Training ----------
     # Make sure the model is in train mode before training.
     resnext50.train()
-    
+
     # These are used to record information in training.
     train_loss = []
     train_accs = []
@@ -340,7 +343,7 @@ for epoch in range(n_epochs):
         # We don't need gradient in validation.
         # Using torch.no_grad() accelerates the forward process.
         with torch.no_grad():
-          logits = resnext50(imgs.to(device))
+            logits = resnext50(imgs.to(device))
 
         # We can still compute the loss (but not the gradient).
         loss = criterion(logits, labels.to(device))
@@ -362,8 +365,8 @@ for epoch in range(n_epochs):
     # save model if validation loss has decreased
     if valid_loss <= valid_loss_min:
         print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
-        valid_loss_min,
-        valid_loss))
+            valid_loss_min,
+            valid_loss))
         torch.save(resnext50.state_dict(), 'resnext50.pth')
         valid_loss_min = valid_loss
 
@@ -385,7 +388,7 @@ for batch in tqdm(testing_data_loader):
     # If printing out the labels, you will find that it is always 0.
     # This is because the wrapper (DatasetFolder) returns images and labels for each batch,
     # so we have to create fake labels to make it work normally.
-    #print(batch)
+    # print(batch)
     imgs = batch
 
     # We don't need gradient in testing, and we don't even have labels to compute loss.
@@ -402,9 +405,9 @@ for batch in tqdm(testing_data_loader):
 """
 
 for i in range(len(predictions)):
-    if predictions[i]<100 and predictions[i]>=10 :
+    if predictions[i] < 100 and predictions[i] >= 10:
         predictions[i] = '0' + str(predictions[i])
-    elif predictions[i]<10 :
+    elif predictions[i] < 10:
         predictions[i] = '00' + str(predictions[i])
 
 fh = open('testing_img_order.txt', 'r')
@@ -415,17 +418,19 @@ for line in fh:
     words = line.split()
     test_images.append((str(words)[2:10]))
 
+
 # ref:https://www.itread01.com/question/aXgwZQ==.html
 def _finditem(obj, key):
-    if key in obj.keys(): 
+    if key in obj.keys():
         print('有')
         return obj[key]
     for k, v in obj.items():
-        if isinstance(v,dict):
+        if isinstance(v, dict):
             item = _finditem(v, key)
             if item is not None:
                 return item
-#%%
+
+
 def find(dic, input_key):
     if str(input_key) in dic.keys():
         return dic[str(input_key)]
@@ -435,10 +440,10 @@ for i in range(len(predictions)):
     class_name = find(class_dict, predictions[i])
     pred = str(predictions[i]) + '.' + str(class_name)
     pred_class.append(pred)
-    
-submission = {'file name':test_images, 'pred':pred_class}
+
+submission = {'file name': test_images, 'pred': pred_class}
 submission = pd.DataFrame(submission)
-submission.to_csv('answer.txt',sep=' ', header=None, index = False)
+submission.to_csv('answer.txt', sep=' ', header=None, index=False)
 
 """# Ensemble Method Attemption
 ##### Code ref. from https://ensemble-pytorch.readthedocs.io/en/latest/
@@ -495,7 +500,7 @@ for batch in tqdm(testing_data_loader):
     # If printing out the labels, you will find that it is always 0.
     # This is because the wrapper (DatasetFolder) returns images and labels for each batch,
     # so we have to create fake labels to make it work normally.
-    #print(batch)
+    # print(batch)
     imgs = batch
     # We don't need gradient in testing, and we don't even have labels to compute loss.
     # Using torch.no_grad() accelerates the forward process.
@@ -511,9 +516,9 @@ for batch in tqdm(testing_data_loader):
 """
 
 for i in range(len(predictions)):
-    if predictions[i]<100 and predictions[i]>=10 :
+    if predictions[i] < 100 and predictions[i] >= 10:
         predictions[i] = '0' + str(predictions[i])
-    elif predictions[i]<10 :
+    elif predictions[i] < 10:
         predictions[i] = '00' + str(predictions[i])
 
 fh = open('testing_img_order.txt', 'r')
@@ -524,17 +529,19 @@ for line in fh:
     words = line.split()
     test_images.append((str(words)[2:10]))
 
+
 # ref:https://www.itread01.com/question/aXgwZQ==.html
 def _finditem(obj, key):
-    if key in obj.keys(): 
+    if key in obj.keys():
         print('有')
         return obj[key]
     for k, v in obj.items():
-        if isinstance(v,dict):
+        if isinstance(v, dict):
             item = _finditem(v, key)
             if item is not None:
                 return item
-#%%
+
+
 def find(dic, input_key):
     if str(input_key) in dic.keys():
         return dic[str(input_key)]
@@ -544,7 +551,7 @@ for i in range(len(predictions)):
     class_name = find(class_dict, predictions[i])
     pred = str(predictions[i]) + '.' + str(class_name)
     pred_class.append(pred)
-    
-submission = {'file name':test_images, 'pred':pred_class}
+
+submission = {'file name': test_images, 'pred': pred_class}
 submission = pd.DataFrame(submission)
-submission.to_csv('ens_answer.txt',sep=' ', header=None, index = False)
+submission.to_csv('ens_answer.txt', sep=' ', header=None, index=False)
